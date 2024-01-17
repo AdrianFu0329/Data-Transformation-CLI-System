@@ -242,8 +242,10 @@ function handleSearchMenuChoice(arr) {
             case '6':
                 console.log("Find the Unique Countries that played against a specific team\n");
                 r1.question("Enter Team name: ", (team) => {
-                    console.log(`\nCountries that played against ${team}: `);
-                    widgets.displayResults(searchFunctions.uniqueCountries(team, arr), 1, () => searchMenu(arr));
+                    const result = searchFunctions.uniqueCountries(team, arr)
+                    console.log(`\nCountries that played against ${team}: ${result.length}`);
+                    console.table(result);
+                    searchMenu(arr);
                 });
                 break;
             case '7':

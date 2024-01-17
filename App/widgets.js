@@ -21,7 +21,7 @@ function displayResults(arr, currentPage, menu) {
     const endIndex = startIndex + pageSize;
     const sortedArr = sortDate(arr);
     const paginatedResults = sortedArr.slice(startIndex, endIndex);
-    console.table(paginatedResults, columnsToDisplay);
+    console.table(paginatedResults.length == 0 ? "No Results to display" : paginatedResults, columnsToDisplay);
 
     console.log(`Page ${currentPage}/${Math.ceil(arr.length / pageSize)}`);
     console.log('1. Next Page');
