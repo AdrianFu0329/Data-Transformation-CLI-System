@@ -13,90 +13,57 @@ const { start } = require('repl');
 require('console');
 
 // Constants
+const constants = require('./constants');
+const mainMenu = constants.mainMenu;
+const filterMenu = constants.filterMenu;
+const searchMenu = constants.searchMenu;
+const miscMenu = constants.miscMenu;
 const top50Message = "(Only top 50 results are shown)";
 const backMenuMessage = 'Going Back to Main Menu...';
 
-
-function displayMenu(arr) {
-    widgets.clearConsole();
-    console.log('================================================================================');
-    console.log('---------------Welcome to International Football Results Dataset----------------');
-    console.log('================================================================================\n');
-    console.log('================================================================================');
-    console.log(miscFunctions.total(arr) + " Goals scored in all matches");
-    const calculateTotalAvg = miscFunctions.avg(arr);
-    const averageGoals = calculateTotalAvg(miscFunctions.total);
-    console.log(averageGoals + " Goals per match");
-    console.log('================================================================================\n');
-    console.log('================================================================================');
-    console.log('1. Filter matches');
-    console.log('2. Search');
-    console.log('3. Miscellaneous Information')
-    console.log('4. Exit');
-    console.log('================================================================================\n');
-    handleMainMenuChoice(arr);
+function menuOptionHandler(arr, menuOptionsArr) {
+    switch (menuOptionsArr) {
+        case mainMenu:
+            handleMainMenuChoice(arr);
+            break;
+        case filterMenu:
+            handleFilterMenuChoice(arr);
+            break;
+        case searchMenu:
+            handleSearchMenuChoice(arr);
+            break;
+        case miscMenu:
+            handleMiscMenuChoice(arr);
+            break;
+        default:
+            return null;
+    }  
 }
 
-function filterMenu(arr) {
-    widgets.clearConsole();
+function displayMenu(arr, menuOptionsArr = mainMenu) {
+    console.log('================================================================================\n');
+    miscFunctions.menuHeader(menuOptionsArr);
     console.log('================================================================================');
-    console.log('-----------------------------------Filter Menu----------------------------------');
+    (menuOptionsArr || []).forEach((option, index) => {
+        console.log(`${index + 1}. ${option}`);
+    });
+    console.log(`${(menuOptionsArr || []).length + 1}. Exit`);
     console.log('================================================================================\n');
-    console.log('1. Date');
-    console.log('2. Home Team');
-    console.log('3. Away Team');
-    console.log('4. Match Scoreline');
-    console.log('5. Tournament');
-    console.log('6. Country of Match Played in');
-    console.log('7. City of Match Played in');
-    console.log('8. Exit');
-    console.log('================================================================================\n');
-    handleFilterMenuChoice(arr);
-}
-
-function searchMenu(arr) {
-    widgets.clearConsole();
-    console.log('================================================================================');
-    console.log('----------------------------------Search Menu-----------------------------------');
-    console.log('================================================================================\n');
-    console.log('1. Date');
-    console.log('2. Teams and Tournament');
-    console.log('3. Average Goals of a Team');
-    console.log('4. Total Games played of a Team');
-    console.log('5. Win Percentage of a Team');
-    console.log('6. Unique Countries played against a Team');
-    console.log('7. Total Goals scored in Year Range');
-    console.log('8. Exit');
-    console.log('================================================================================\n');
-    handleSearchMenuChoice(arr);
-}
-
-function miscMenu(arr) {
-    widgets.clearConsole();
-    console.log('================================================================================');
-    console.log('-------------------------------Miscellaneous Menu-------------------------------');
-    console.log('================================================================================\n');
-    console.log('1. Specific Goal Tally Search');
-    console.log('2. Number of Victories of a specific team');
-    console.log('3. Match with Highest Number of Goals');
-    console.log('4. Matches with odd number total goal tally');
-    console.log('5. Top 3 Countries with the most goals scored');
-    console.log('6. Exit');
-    console.log('================================================================================\n');
-    handleMiscMenuChoice(arr);
+    
+    menuOptionHandler(arr, menuOptionsArr);  
 }
 
 function handleMainMenuChoice(arr) {
     r1.question('Choose an option (1-4): ', (choice) => {
         switch (choice) {
             case '1':
-                filterMenu(arr);
+                displayMenu(arr, filterMenu);
                 break;
             case '2':
-                searchMenu(arr);
+                displayMenu(arr, searchMenu);
                 break;
             case '3':
-                miscMenu(arr);
+                displayMenu(arr, miscMenu);
                 break;
             case '4':
                 console.log('Goodbye!');
@@ -104,7 +71,7 @@ function handleMainMenuChoice(arr) {
                 break;
             default:
                 console.log('Invalid choice. Please enter a valid option.');
-                displayMenu();
+                displayMenu(arr, mainMenu);
                 handleMainMenuChoice();
         }
     });
@@ -120,7 +87,7 @@ function handleFilterMenuChoice(arr) {
                         const dateFilter = endDate ? filterFunctions.date(startDate)(endDate)(arr) : filterFunctions.date(startDate)()(arr)
                         console.log(`\nMatches that are played between ${startDate} and ${endDate || "now"}: ${dateFilter.length}`)
                         console.log(top50Message);
-                        widgets.displayResults(dateFilter.length == 0 ? `No matches played in between ${startDate} and ${endDate || "now"}` : dateFilter, 1, () => filterMenu(arr));
+                        widgets.displayResults(dateFilter.length == 0 ? `No matches played in between ${startDate} and ${endDate || "now"}` : dateFilter, 1, () => displayMenu(arr, filterMenu));
                     });
                 });
                 break;
@@ -130,7 +97,7 @@ function handleFilterMenuChoice(arr) {
                     const filteredHomeResult = filterFunctions.home_team(team)(arr);
                     console.log(`\nMatches Played by ${team} at home: ${filteredHomeResult.length}: `);
                     console.log(top50Message);
-                    widgets.displayResults(filteredHomeResult.length == 0 ? `No matches played in ${team}` : filteredHomeResult, 1, () => filterMenu(arr));
+                    widgets.displayResults(filteredHomeResult.length == 0 ? `No matches played in ${team}` : filteredHomeResult, 1, () => displayMenu(arr, filterMenu));
                 });
                 break;
             case '3':
@@ -139,7 +106,7 @@ function handleFilterMenuChoice(arr) {
                     const filteredAwayResult = filterFunctions.away_team(team)(arr);
                     console.log(`\nMatches Played by ${team} away from home: ${filteredAwayResult.length}: `);
                     console.log(top50Message);
-                    widgets.displayResults(filteredAwayResult.length == 0 ? `No matches played in ${team}` : filteredAwayResult, 1, () => filterMenu(arr));
+                    widgets.displayResults(filteredAwayResult.length == 0 ? `No matches played in ${team}` : filteredAwayResult, 1, () => displayMenu(arr, filterMenu));
                 });
                 break;
             case '4':
@@ -149,7 +116,7 @@ function handleFilterMenuChoice(arr) {
                         const filteredScoreline = filterFunctions.scoreline(homeGoal)(awayGoal)(arr);
                         console.log(`\nMatches that has a ${homeGoal}-${awayGoal} scoreline: ${filteredScoreline.length}`)
                         console.log(top50Message);
-                        widgets.displayResults(filteredScoreline.length == 0 ? "Match doesn't exist" : filteredScoreline, 1, () => filterMenu(arr));
+                        widgets.displayResults(filteredScoreline.length == 0 ? "Match doesn't exist" : filteredScoreline, 1, () => displayMenu(arr, filterMenu));
                     });
                 });
                 break;
@@ -159,7 +126,7 @@ function handleFilterMenuChoice(arr) {
                     const filteredTournamentResult = filterFunctions.tournament(tournament)(arr);
                     console.log(`\nMatches Played in the ${tournament}: ${filteredTournamentResult.length}: `);
                     console.log(top50Message);
-                    widgets.displayResults(filteredTournamentResult.length == 0 ? `No matches played in the ${tournament}` : filteredTournamentResult, 1, () => filterMenu(arr));
+                    widgets.displayResults(filteredTournamentResult.length == 0 ? `No matches played in the ${tournament}` : filteredTournamentResult, 1, () => displayMenu(arr, filterMenu));
                 });
                 break;
             case '6':
@@ -168,7 +135,7 @@ function handleFilterMenuChoice(arr) {
                     const filteredCountryResult = filterFunctions.country(country)(arr);
                     console.log(`\nMatches Played in ${country}: ${filteredCountryResult.length}: `);
                     console.log(top50Message);
-                    widgets.displayResults(filteredCountryResult.length == 0 ? `No matches played in ${country}` : filteredCountryResult, 1, () => filterMenu(arr));
+                    widgets.displayResults(filteredCountryResult.length == 0 ? `No matches played in ${country}` : filteredCountryResult, 1, () => displayMenu(arr, filterMenu));
                 });
                 break;
             case '7':
@@ -177,16 +144,16 @@ function handleFilterMenuChoice(arr) {
                     const filteredCityResult = filterFunctions.city(city)(arr);
                     console.log(`\nMatches Played in ${city}: ${filteredCityResult.length}: `);
                     console.log(top50Message);
-                    widgets.displayResults(filteredCityResult.length == 0 ? `No matches played in ${city}` : filteredCityResult, 1, () => filterMenu(arr));
+                    widgets.displayResults(filteredCityResult.length == 0 ? `No matches played in ${city}` : filteredCityResult, 1, () => displayMenu(arr, filterMenu));
                 });
                 break;
             case '8':
                 console.log(backMenuMessage);
-                displayMenu(arr);
+                displayMenu(arr, mainMenu);
                 break;
             default:
                 console.log('Invalid choice. Please enter a valid option.');
-                filterMenu(arr);
+                displayMenu(arr, filterMenu);
                 handleFilterMenuChoice(arr);
         }
     });
@@ -200,7 +167,7 @@ function handleSearchMenuChoice(arr) {
                 r1.question("Enter Date (YYYY-MM-DD): ", (date) => {
                     const target = searchFunctions.date(arr, date);
                     console.log(`\nMatch played on ${date}: `)
-                    widgets.displayResults(target, 1, () => searchMenu(arr));
+                    widgets.displayResults(target, 1, () => displayMenu(arr, searchMenu));
                 });
                 break;
             case '2':
@@ -210,7 +177,7 @@ function handleSearchMenuChoice(arr) {
                         r1.question("Enter tournament: ", (tournament) => {
                             const filteredResult = searchFunctions.countriesAndTournament(home)(away)(tournament)(arr);
                             console.log(`Match played by ${home} and ${away} in the ${tournament}: `);
-                            widgets.displayResults(filteredResult.length == 0 ? "Match doesn't exist" : filteredResult, 1, () => searchMenu(arr));
+                            widgets.displayResults(filteredResult.length == 0 ? "Match doesn't exist" : filteredResult, 1, () => displayMenu(arr, searchMenu));
                         });
                     });
                 });
@@ -220,7 +187,7 @@ function handleSearchMenuChoice(arr) {
                 r1.question("Enter Team name: ", (team) => {
                     const avgGoalsOfTeam = searchFunctions.avgGoalsOfTeam(team, arr);
                     console.log(`\n${team}: ${avgGoalsOfTeam} Average Goals per Game`);
-                    searchMenu(arr);
+                    displayMenu(arr, searchMenu);
                 });
                 break;
             case '4':
@@ -228,7 +195,7 @@ function handleSearchMenuChoice(arr) {
                 r1.question("Enter Team name: ", (team) => {
                     const result = searchFunctions.totalMatches(team, arr);
                     console.log(`\n${team} played a total of ${result} matches`);
-                    searchMenu(arr);
+                    displayMenu(arr, searchMenu);
                 });
                 break;
             case '5':
@@ -236,7 +203,7 @@ function handleSearchMenuChoice(arr) {
                 r1.question("Enter Team name: ", (team) => {
                     const winPercentagePor = searchFunctions.winPercentage(team, arr);
                     console.log(`\n${winPercentagePor}% win percentage for ${team}`);
-                    searchMenu(arr);
+                    displayMenu(arr, searchMenu);
                 });
                 break;
             case '6':
@@ -245,7 +212,7 @@ function handleSearchMenuChoice(arr) {
                     const result = searchFunctions.uniqueCountries(team, arr)
                     console.log(`\nCountries that played against ${team}: ${result.length}`);
                     console.table(result);
-                    searchMenu(arr);
+                    displayMenu(arr, searchMenu);
                 });
                 break;
             case '7':
@@ -254,17 +221,17 @@ function handleSearchMenuChoice(arr) {
                     r1.question("Enter Ending Year: ", (end_year) => {
                         const totalGoals = searchFunctions.totalGoalsYearRange(start_year, end_year, arr);
                         console.log(`\nA total of ${totalGoals} Goals scored from ${start_year} to ${end_year}`);
-                        searchMenu(arr);
+                        displayMenu(arr, searchMenu);
                     });
                 });
                 break;
             case '8':
                 console.log(backMenuMessage);
-                displayMenu(arr);
+                displayMenu(arr, mainMenu);
                 break;
             default:
                 console.log('Invalid choice. Please enter a valid option.');
-                searchMenu(arr);
+                displayMenu(arr, searchMenu);
                 handleSearchMenuChoice(arr);
         }
     });
@@ -278,7 +245,7 @@ function handleMiscMenuChoice(arr) {
                 r1.question("Enter Total Goal Tally in one game: ", (targetGoals) => {
                     const result = miscFunctions.overGoals(arr, targetGoals)
                     console.log(`\n Matches where the combine goals is more than ${targetGoals}: ${result.length}`);
-                    widgets.displayResults(result, 1, () => miscMenu(arr))
+                    widgets.displayResults(result, 1, () => displayMenu(arr, miscMenu))
                 });
                 break;
             case '2':
@@ -286,7 +253,7 @@ function handleMiscMenuChoice(arr) {
                 r1.question("Enter Team name: ", (targetCountry) => {
                     const result = miscFunctions.teamVictories(targetCountry, arr);
                     console.log(`\nMatches that ${targetCountry} has won at home: ${result.length}`);
-                    widgets.displayResults(result, 1, () => miscMenu(arr))
+                    widgets.displayResults(result, 1, () => displayMenu(arr, miscMenu))
                 });
                 break;
             case '3':
@@ -297,7 +264,7 @@ function handleMiscMenuChoice(arr) {
             case '4':
                 const result = miscFunctions.oddNumberGoals(arr);
                 console.log(`\nMatches with odd number total goal tally: ${result.length}`);
-                widgets.displayResults(result, 1, () => miscMenu(arr));
+                widgets.displayResults(result, 1, () => displayMenu(arr, miscMenu));
                 break;
             case '5':
                 const goalsArray = Object.entries(miscFunctions.top3(arr)).map(([Country, Goals]) => ({Country, Goals}));
@@ -305,15 +272,15 @@ function handleMiscMenuChoice(arr) {
                 const top3 = goalsArray.slice(0, 3);
                 console.log("\nTop 3 Countries with the most goals scored: ");
                 console.table(top3);
-                miscMenu(arr);
+                displayMenu(arr, miscMenu);
                 break;
             case '6':
                 console.log(backMenuMessage);
-                displayMenu(arr);
+                displayMenu(arr, mainMenu);
                 break;
             default:
                 console.log('Invalid choice. Please enter a valid option.');
-                miscMenu(arr);
+                displayMenu(arr, miscMenu);
                 handleMiscMenuChoice(arr);
         }
     });

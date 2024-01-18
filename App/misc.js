@@ -1,3 +1,32 @@
+const constants = require('./constants');
+const mainMenu = constants.mainMenu;
+const filterMenu = constants.filterMenu;
+const searchMenu = constants.searchMenu;
+const miscMenu = constants.miscMenu;
+
+function menuHeader(menuOptionsArr) {
+    switch (menuOptionsArr) {
+        case mainMenu:
+            console.log('================================================================================');
+            console.log('------------------------------------Main Menu-----------------------------------');
+            break;
+        case filterMenu:
+            console.log('================================================================================');
+            console.log('-----------------------------------Filter Menu----------------------------------');
+            break;
+        case searchMenu:
+            console.log('================================================================================');
+            console.log('----------------------------------Search Menu-----------------------------------');
+            break;
+        case miscMenu:
+            console.log('================================================================================');
+            console.log('-------------------------------Miscellaneous Menu-------------------------------');
+            break;
+        default:
+            return null;
+    }  
+}  
+
 // Function to get total amount of goals scored in all matches
 const calculateTotal = (arr) => arr.reduce((acc, val) => {
     const homeGoals = parseInt(val.home_score);
@@ -75,5 +104,6 @@ module.exports = {
     oddNumberGoals: oddNumberGoals,
     overGoals: overGoals,
     teamVictories: teamVictories,
-    highestGoalMatch: highestGoalMatch
+    highestGoalMatch: highestGoalMatch,
+    menuHeader: menuHeader
 }
